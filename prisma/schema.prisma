@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id String @id @default(cuid())
+
+  email String @unique
+  password String?
+
+  name String @default("No name")
+  avatarUrl String @default("/uploads/default-avatar.jpg") @map("avatar_url")
+
+  role UserRole @default(USER)
+  isHasPremium Boolean @default(false) @map("is_has_premium")
+  authByOAuth Boolean @default(false) @map("auth_by_oauth")
+
+  favorites Movie[]
+  reviews Review[]
+  payments Payment[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user")
+}
+
+model Movie{
+  id String @id @default(cuid())
+
+  title String
+  slug String @unique
+
+  poster String
+  bigPoster String @map("big_poster")
+
+  year Int @default(0)
+  duration Int @default(0)
+  country String @default("")
+
+  views Int @default(0)
+
+  videoUrl String @map("video_url")
+
+  user User? @relation(fields: [userId], references: [id])
+  userId String? @map("user_id")
+
+  genres Genre[]
+  actors Actor[]
+  reviews Review[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("movie")
+}
+
+model Genre{
+  id String @id @default(cuid())
+
+  name String
+  slug String @unique
+  description String 
+
+  icon String
+
+  movies Movie[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("genre")
+}
+
+model Actor{
+  id String @id @default(cuid())
+
+  name String
+  slug String @unique
+
+  photoUrl String @map("photo_url")
+
+  movies Movie[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("actor")
+}
+
+model Review {
+  id String @id @default(cuid())
+  
+  rating Int
+  text String
+
+  user User?   @relation(fields: [userId], references: [id])
+  userId String? @map("user_id")
+
+  movie Movie?  @relation(fields: [movieId], references: [id])
+  movieId String? @map("movie_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("review")
+}
+
+model Payment {
+  id String @id @default(cuid())
+  
+  status PaymentStatus @default(PENDING)
+
+  amount Float @default(0)
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String? @map("user_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("payment")
+}
+
+enum UserRole{
+  USER
+  ADMIN
+}
+
+enum PaymentStatus {
+  PENDING
+  PAYED
+}
