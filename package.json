@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "generate-html": "mkdir -p dist && cp index.html dist/",
     "vercel-build": "npx prisma generate && npx prisma migrate deploy && nest build",
-    "heroku-postbuild": "npx prisma generate && npx prisma migrate deploy && nest build"
+    "heroku-postbuild": "npx prisma generate && npx prisma db push && nest build"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
