@@ -59,7 +59,14 @@ export class MoviesService {
       throw new NotFoundException('Movie not found');
     }
 
-    return movie;
+    const averageRating =
+      movie.reviews.reduce((acc, review) => acc + review.rating, 0) /
+      movie.reviews.length;
+
+    return {
+      ...movie,
+      rating: averageRating,
+    };
   }
 
   async getMostPopular(query?: PaginatorQuery) {
